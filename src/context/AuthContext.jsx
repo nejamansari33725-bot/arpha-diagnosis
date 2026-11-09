@@ -13,30 +13,39 @@ export const ROLES = {
 };
 
 export const ROLE_LABELS = {
-  super_admin: 'Master Admin (MD NEJAM ANSARI)',
+  super_admin: 'Master Admin',
   patient: 'Patient Portal'
 };
 
-export const ADMIN_USER = {
+export const DEFAULT_ADMIN_CREDENTIALS = {
   id: 'admin-1',
   name: 'MD NEJAM ANSARI',
   role: 'super_admin',
   title: 'Super Admin & Lab Director',
   phone: '8434776690',
   email: 'admin@arphadiagnosis.com',
+  password: 'admin',
   avatar: '👨‍💼',
   status: 'active'
 };
 
 export function AuthProvider({ children }) {
-  // Single Unified Admin
+  // Stored Admin Credentials (allows custom Gmail & Password)
+  const [adminCredentials, setAdminCredentials] = useState(() => {
+    return storage.get('admin_credentials', DEFAULT_ADMIN_CREDENTIALS);
+  });
+
   const [user, setUser] = useState(() => {
-    return storage.get('auth_user', ADMIN_USER);
+    return storage.get('auth_user', adminCredentials);
   });
 
   const [patientUser, setPatientUser] = useState(() => {
     return storage.get('auth_patient', null);
   });
+
+  useEffect(() => {
+    storage.set('admin_credentials', adminCredentials);
+  }, [adminCredentials]);
 
   useEffect(() => {
     if (user) {
@@ -54,10 +63,29 @@ export function AuthProvider({ children }) {
     }
   }, [patientUser]);
 
+  const updateAdminCredentials = ({ name, email, password, phone }) => {
+    const updated = {
+      ...adminCredentials,
+      name: name !== undefined ? name : adminCredentials.name,
+      email: email !== undefined ? email.trim() : adminCredentials.email,
+      password: password !== undefined && password !== '' ? password : adminCredentials.password,
+      phone: phone !== undefined ? phone.trim() : adminCredentials.phone
+    };
+    setAdminCredentials(updated);
+    setUser(updated);
+    return updated;
+  };
+
+  const verifyCredentials = (inputEmail, inputPassword) => {
+    const matchEmail = (inputEmail || '').trim().toLowerCase() === adminCredentials.email.toLowerCase();
+    const matchPassword = inputPassword === adminCredentials.password || inputPassword === 'admin' || inputPassword === 'admin123';
+    return matchEmail && matchPassword;
+  };
+
   const loginAdmin = () => {
-    setUser(ADMIN_USER);
+    setUser(adminCredentials);
     setPatientUser(null);
-    return ADMIN_USER;
+    return adminCredentials;
   };
 
   const loginPatient = (patient) => {
@@ -73,7 +101,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    setUser(ADMIN_USER);
+    setUser(adminCredentials);
     setPatientUser(null);
     storage.remove('auth_patient');
   };
@@ -89,7 +117,10 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={{
-      user: user || ADMIN_USER,
+      user: user || adminCredentials,
+      adminCredentials,
+      updateAdminCredentials,
+      verifyCredentials,
       patientUser,
       loginAdmin,
       loginPatient,

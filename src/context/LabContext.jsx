@@ -410,6 +410,29 @@ export function LabProvider({ children }) {
     return { patient: newPatient, invoice: createdInvoice, tests: selectedTestsList };
   };
 
+  // STAFF ACTIONS (ADD / EDIT / DELETE STAFF & PASSWORDS)
+  const addStaff = (staffData) => {
+    const newMember = {
+      id: `staff-${Date.now()}`,
+      status: 'active',
+      avatar: staffData.role === 'pathologist' ? '👩‍⚕️' : staffData.role === 'technician' ? '🔬' : staffData.role === 'receptionist' ? '👩‍💼' : '👨‍⚕️',
+      ...staffData
+    };
+    setStaff(prev => [...prev, newMember]);
+    logAudit('STAFF_ADDED', `New staff member added: ${newMember.name} (${newMember.role})`);
+    return newMember;
+  };
+
+  const updateStaff = (id, updatedData) => {
+    setStaff(prev => prev.map(s => s.id === id ? { ...s, ...updatedData } : s));
+    logAudit('STAFF_UPDATED', `Staff credentials/details updated for ID: ${id}`);
+  };
+
+  const deleteStaff = (id) => {
+    setStaff(prev => prev.filter(s => s.id !== id));
+    logAudit('STAFF_DELETED', `Staff record deleted: ID ${id}`);
+  };
+
   // COMPLETE DATABASE WIPE / RESET
   const resetAllData = () => {
     setPatients([]);
@@ -462,6 +485,9 @@ export function LabProvider({ children }) {
       expenses,
       addExpense,
       staff,
+      addStaff,
+      updateStaff,
+      deleteStaff,
       auditLogs,
       logAudit
     }}>

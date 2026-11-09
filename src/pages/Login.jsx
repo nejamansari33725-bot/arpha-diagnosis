@@ -9,16 +9,17 @@ import {
   Mail,
   ArrowRight,
   User,
-  Sparkles
+  AlertCircle
 } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { loginAdmin } = useAuth();
+  const { loginAdmin, adminCredentials, verifyCredentials } = useAuth();
   const { settings } = useLab();
 
-  const [email, setEmail] = useState('admin@arphadiagnosis.com');
-  const [password, setPassword] = useState('••••••••');
+  const [email, setEmail] = useState(adminCredentials?.email || 'admin@arphadiagnosis.com');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleAdminEnter = () => {
     loginAdmin();
@@ -27,8 +28,14 @@ export default function Login() {
 
   const handleCustomLogin = (e) => {
     e.preventDefault();
-    loginAdmin();
-    navigate('/');
+    setError('');
+
+    if (verifyCredentials(email, password)) {
+      loginAdmin();
+      navigate('/');
+    } else {
+      setError('Galat Email ya Password hai. Kripya apna sahi password dalein ya direct Admin access button use karein.');
+    }
   };
 
   return (
@@ -52,13 +59,13 @@ export default function Login() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg relative z-10 px-4">
         <div className="bg-white py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-slate-200 space-y-6">
           
-          {/* Unified Single Admin Card */}
+          {/* Quick Direct Admin Entry */}
           <div className="space-y-3">
             <div className="text-center">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Master Administrator Authentication
+                Master Administrator Access
               </span>
-              <p className="text-xs text-slate-600 mt-0.5">Click below to enter the full laboratory control dashboard:</p>
+              <p className="text-xs text-slate-600 mt-0.5">Click below to enter with saved Admin profile:</p>
             </div>
 
             <button
@@ -72,13 +79,13 @@ export default function Login() {
                 </div>
                 <div>
                   <div className="text-sm font-black text-brand-950 flex items-center gap-2">
-                    <span>MD NEJAM ANSARI</span>
+                    <span>{adminCredentials?.name || 'MD NEJAM ANSARI'}</span>
                     <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">
                       Master Admin
                     </span>
                   </div>
-                  <div className="text-xs text-brand-700 font-medium mt-0.5">
-                    Full Master Access (Patients, Billing, Tests, Reports & Approval)
+                  <div className="text-xs text-brand-700 font-mono mt-0.5">
+                    {adminCredentials?.email || 'admin@arphadiagnosis.com'}
                   </div>
                 </div>
               </div>
@@ -102,8 +109,15 @@ export default function Login() {
 
           {/* Standard Form */}
           <form onSubmit={handleCustomLogin} className="space-y-4 text-xs">
+            {error && (
+              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl font-medium flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Admin Email Address</label>
+              <label className="block font-semibold text-slate-700 mb-1">Admin Email / Gmail</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
@@ -111,21 +125,22 @@ export default function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 border rounded-xl"
+                  className="w-full pl-9 pr-3 py-2 border rounded-xl font-mono text-slate-900"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Security Password</label>
+              <label className="block font-semibold text-slate-700 mb-1">Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="password"
                   required
+                  placeholder="Enter admin password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 border rounded-xl"
+                  className="w-full pl-9 pr-3 py-2 border rounded-xl font-mono"
                 />
               </div>
             </div>

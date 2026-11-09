@@ -244,6 +244,7 @@ export const INITIAL_STAFF = [
     role: "super_admin",
     phone: "8434776690",
     email: "admin@arphadiagnosis.com",
+    password: "admin",
     qualification: "M.Sc Biochemistry & Lab Director",
     status: "active",
     avatar: "👨‍⚕️"
@@ -254,6 +255,7 @@ export const INITIAL_STAFF = [
     role: "pathologist",
     phone: "9876543210",
     email: "pathologist@arphadiagnosis.com",
+    password: "doctor123",
     qualification: "MBBS, MD Pathology (Gold Medalist)",
     regNumber: "MCI/884219/2018",
     status: "active",
@@ -265,6 +267,7 @@ export const INITIAL_STAFF = [
     role: "technician",
     phone: "9123456780",
     email: "tech@arphadiagnosis.com",
+    password: "tech123",
     qualification: "DMLT, B.Sc MLT",
     status: "active",
     avatar: "🔬"
@@ -275,6 +278,7 @@ export const INITIAL_STAFF = [
     role: "receptionist",
     phone: "9812345671",
     email: "reception@arphadiagnosis.com",
+    password: "reception123",
     qualification: "B.Com, Healthcare Administration",
     status: "active",
     avatar: "👩‍💼"

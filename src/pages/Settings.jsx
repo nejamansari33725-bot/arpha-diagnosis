@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLab } from '../context/LabContext';
+import { useAuth } from '../context/AuthContext';
 import {
   Settings as SettingsIcon,
   Building2,
@@ -15,15 +16,32 @@ import {
   Stethoscope,
   Trash2,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  Lock,
+  KeyRound,
+  Eye,
+  EyeOff,
+  UserCheck
 } from 'lucide-react';
 
 export default function Settings() {
   const { settings, updateSettings, resetAllData, patients, invoices, samples, reports } = useLab();
+  const { adminCredentials, updateAdminCredentials } = useAuth();
+
+  // Lab profile state
   const [formData, setFormData] = useState({ ...settings });
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
-  const [copiedSql, setCopiedSql] = useState(false);
+
+  // Admin credentials state
+  const [adminName, setAdminName] = useState(adminCredentials?.name || 'MD NEJAM ANSARI');
+  const [adminEmail, setAdminEmail] = useState(adminCredentials?.email || 'admin@arphadiagnosis.com');
+  const [adminPhone, setAdminPhone] = useState(adminCredentials?.phone || '8434776690');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminConfirmPassword, setAdminConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [adminSaveSuccess, setAdminSaveSuccess] = useState(false);
+  const [adminError, setAdminError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,17 +50,34 @@ export default function Settings() {
     setTimeout(() => setSaveSuccess(false), 3000);
   };
 
+  const handleAdminCredentialsSubmit = (e) => {
+    e.preventDefault();
+    setAdminError('');
+
+    if (adminPassword && adminPassword !== adminConfirmPassword) {
+      setAdminError('New Password aur Confirm Password match nahi kar rahe hain!');
+      return;
+    }
+
+    updateAdminCredentials({
+      name: adminName.trim(),
+      email: adminEmail.trim(),
+      phone: adminPhone.trim(),
+      password: adminPassword ? adminPassword.trim() : undefined
+    });
+
+    setAdminPassword('');
+    setAdminConfirmPassword('');
+    setAdminSaveSuccess(true);
+    setTimeout(() => setAdminSaveSuccess(false), 4000);
+  };
+
   const handleResetData = () => {
     if (window.confirm("Kripya confirm karein: Kya aap sach me sabhi patients, bills, samples aur reports ka data delete karke bilkul fresh/clean shuru karna chahte hain?")) {
       resetAllData();
       setResetSuccess(true);
       setTimeout(() => setResetSuccess(false), 4000);
     }
-  };
-
-  const handleCopySqlNotice = () => {
-    setCopiedSql(true);
-    setTimeout(() => setCopiedSql(false), 3000);
   };
 
   return (
@@ -55,7 +90,7 @@ export default function Settings() {
           <span>Laboratory Information & System Settings</span>
         </h1>
         <p className="text-xs text-slate-500 mt-1">
-          Configure diagnostic laboratory letterhead, medical accreditation details, pathologist credentials, and database synchronization.
+          Clinic letterhead, doctor credentials, master admin password & Gmail settings, and database management.
         </p>
       </div>
 
@@ -66,7 +101,133 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Main Settings Form */}
+      {/* 1. ADMIN LOGIN GMAIL & PASSWORD CARD (SPECIAL REQUEST) */}
+      <div className="bg-white rounded-2xl border-2 border-brand-200 shadow-sm overflow-hidden">
+        <div className="bg-gradient-to-r from-brand-800 to-brand-700 px-6 py-4 text-white flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <KeyRound className="w-5 h-5 text-brand-200" />
+            <div>
+              <h2 className="text-sm font-bold">Admin Security: Change Gmail & Password</h2>
+              <p className="text-[11px] text-brand-200">Master Admin login email aur password yahan se badlein</p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold bg-white/20 text-white px-2.5 py-1 rounded-full uppercase tracking-wider">
+            Admin Auth
+          </span>
+        </div>
+
+        <form onSubmit={handleAdminCredentialsSubmit} className="p-6 space-y-4 text-xs">
+          {adminError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl font-medium flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              <span>{adminError}</span>
+            </div>
+          )}
+
+          {adminSaveSuccess && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-bold flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-600" />
+              <span>Admin Gmail aur Password successfully update ho gaya hai!</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Admin Full Name</label>
+              <input
+                type="text"
+                required
+                value={adminName}
+                onChange={(e) => setAdminName(e.target.value)}
+                className="w-full px-3 py-2 border rounded-xl font-bold text-slate-900"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Admin Mobile Phone</label>
+              <input
+                type="tel"
+                required
+                value={adminPhone}
+                onChange={(e) => setAdminPhone(e.target.value)}
+                className="w-full px-3 py-2 border rounded-xl font-mono text-slate-900"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block font-semibold text-slate-700 mb-1">
+              Admin Login Gmail / Email Address *
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="email"
+                required
+                placeholder="e.g. yourname@gmail.com"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 border border-brand-300 rounded-xl font-mono font-bold text-brand-900 bg-brand-50/20"
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">Is Gmail ID se aap login karenge.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-semibold text-slate-700">New Password (Naya Password)</label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[10px] text-brand-700 font-semibold hover:underline flex items-center gap-1"
+                >
+                  {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                  <span>{showPassword ? 'Hide' : 'Show'}</span>
+                </button>
+              </div>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Leave empty to keep existing password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 border rounded-xl font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Confirm New Password</label>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Re-enter new password"
+                  value={adminConfirmPassword}
+                  onChange={(e) => setAdminConfirmPassword(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 border rounded-xl font-mono"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 flex justify-between items-center">
+            <span className="text-[11px] text-slate-500 font-mono">
+              Current Password: <strong>{adminCredentials?.password ? '••••••••' : 'admin'}</strong>
+            </span>
+            <button
+              type="submit"
+              className="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-md transition-all flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              <span>Update Admin Gmail & Password</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* 2. CLINIC LETTERHEAD & PUBLIC PROFILE */}
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         
         <div className="bg-slate-50 border-b border-slate-200 px-6 py-4">
@@ -193,36 +354,7 @@ export default function Settings() {
 
       </form>
 
-      {/* Supabase Database Cloud Sync Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 text-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center">
-              <Database className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">Supabase Cloud Database & RLS</h3>
-              <p className="text-slate-500">Dual-layer architecture: Embedded high-speed state + Supabase PostgreSQL schema</p>
-            </div>
-          </div>
-          <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full font-bold text-[11px] flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-            Ready to Connect
-          </span>
-        </div>
-
-        <p className="text-slate-600 leading-relaxed">
-          The complete database schema with Row Level Security (RLS), tables (<code className="bg-slate-100 px-1 py-0.5 rounded text-brand-700 font-mono">patients</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-brand-700 font-mono">test_catalog</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-brand-700 font-mono">samples</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-brand-700 font-mono">invoices</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-brand-700 font-mono">lab_reports</code>, <code className="bg-slate-100 px-1 py-0.5 rounded text-brand-700 font-mono">audit_logs</code>), and seed data is ready in <code className="font-mono bg-slate-100 px-1 py-0.5 rounded text-slate-800">supabase_schema.sql</code>.
-        </p>
-
-        <div className="bg-slate-900 text-emerald-400 p-4 rounded-xl font-mono text-[11px] overflow-x-auto space-y-1">
-          <p className="text-slate-400">// Supabase Environment Variables (Optional in .env):</p>
-          <p>VITE_SUPABASE_URL=https://your-project.supabase.co</p>
-          <p>VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</p>
-        </div>
-      </div>
-
-      {/* Danger Zone: Reset All Lab Data */}
+      {/* 3. DANGER ZONE: DATA RESET */}
       <div className="bg-rose-50/70 rounded-2xl border-2 border-rose-200 p-6 space-y-4 text-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-3">
