@@ -204,11 +204,28 @@ export default function Dashboard({ onOpenNewPatient }) {
           </div>
           <div className="text-2xl font-black text-emerald-700">₹{netEarnings.toLocaleString('en-IN')}</div>
           <div className="mt-2 text-xs text-emerald-600 font-semibold">
-            Health margin: 68.4%
+            Health margin: {monthlyRevenue > 0 ? `${Math.round((netEarnings / monthlyRevenue) * 100)}%` : 'Active'}
           </div>
         </div>
 
       </div>
+
+      {/* Database Empty Welcome Callout */}
+      {totalPatients === 0 && (
+        <div className="p-6 bg-gradient-to-r from-brand-50 to-cyan-50 border-2 border-brand-200 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="space-y-1 text-center sm:text-left">
+            <h3 className="text-sm font-black text-brand-950">Laboratory Database is Clean & Fresh!</h3>
+            <p className="text-xs text-brand-700">All demo data has been cleared. You can start adding your own real patients, doctors, and tests now.</p>
+          </div>
+          <button
+            onClick={onOpenNewPatient}
+            className="px-5 py-2.5 bg-brand-700 hover:bg-brand-800 text-white font-bold text-xs rounded-xl shadow-md transition-all shrink-0 flex items-center gap-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Add First Real Patient</span>
+          </button>
+        </div>
+      )}
 
       {/* Main Section: Chart + Pending Worklist */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

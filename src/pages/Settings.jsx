@@ -12,13 +12,17 @@ import {
   Phone,
   Mail,
   MapPin,
-  Stethoscope
+  Stethoscope,
+  Trash2,
+  AlertTriangle,
+  RefreshCw
 } from 'lucide-react';
 
 export default function Settings() {
-  const { settings, updateSettings } = useLab();
+  const { settings, updateSettings, resetAllData, patients, invoices, samples, reports } = useLab();
   const [formData, setFormData] = useState({ ...settings });
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
   const [copiedSql, setCopiedSql] = useState(false);
 
   const handleSubmit = (e) => {
@@ -26,6 +30,14 @@ export default function Settings() {
     updateSettings(formData);
     setSaveSuccess(true);
     setTimeout(() => setSaveSuccess(false), 3000);
+  };
+
+  const handleResetData = () => {
+    if (window.confirm("Kripya confirm karein: Kya aap sach me sabhi patients, bills, samples aur reports ka data delete karke bilkul fresh/clean shuru karna chahte hain?")) {
+      resetAllData();
+      setResetSuccess(true);
+      setTimeout(() => setResetSuccess(false), 4000);
+    }
   };
 
   const handleCopySqlNotice = () => {
@@ -208,6 +220,45 @@ export default function Settings() {
           <p>VITE_SUPABASE_URL=https://your-project.supabase.co</p>
           <p>VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</p>
         </div>
+      </div>
+
+      {/* Danger Zone: Reset All Lab Data */}
+      <div className="bg-rose-50/70 rounded-2xl border-2 border-rose-200 p-6 space-y-4 text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center shrink-0">
+              <Trash2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-rose-950">Database Clean Slate (Data Reset)</h3>
+              <p className="text-rose-700 mt-0.5">
+                Clear all patients, billing records, samples, and reports to start completely fresh with real patient intake.
+              </p>
+              <div className="flex items-center gap-3 text-[11px] font-mono text-rose-800 mt-2">
+                <span>Patients: {patients.length}</span> •
+                <span>Bills: {invoices.length}</span> •
+                <span>Samples: {samples.length}</span> •
+                <span>Reports: {reports.length}</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleResetData}
+            className="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 self-start sm:self-auto shrink-0"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Reset All Records to 0</span>
+          </button>
+        </div>
+
+        {resetSuccess && (
+          <div className="p-3 bg-emerald-100 border border-emerald-300 text-emerald-900 rounded-xl font-bold flex items-center gap-2">
+            <Check className="w-4 h-4 text-emerald-700" />
+            <span>Sabhi data safalta-purvak reset ho gaya hai! Naye real patients add karne ke liye taiyaar hai.</span>
+          </div>
+        )}
       </div>
 
     </div>

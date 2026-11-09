@@ -8,6 +8,19 @@ const LabContext = createContext();
 export function LabProvider({ children }) {
   const { user } = useAuth();
 
+  // 1-time automatic wipe of demo records for clean production state
+  if (typeof window !== 'undefined') {
+    const isWiped = localStorage.getItem('arpha_clean_slate_2026');
+    if (!isWiped) {
+      localStorage.removeItem('arpha_patients');
+      localStorage.removeItem('arpha_samples');
+      localStorage.removeItem('arpha_invoices');
+      localStorage.removeItem('arpha_reports');
+      localStorage.removeItem('arpha_expenses');
+      localStorage.setItem('arpha_clean_slate_2026', 'true');
+    }
+  }
+
   // 1. LAB SETTINGS
   const [settings, setSettings] = useState(() => {
     return storage.get('settings', {
@@ -28,132 +41,29 @@ export function LabProvider({ children }) {
     });
   });
 
-  // 2. PATIENTS
+  // 2. PATIENTS (Clean - 0 demo records)
   const [patients, setPatients] = useState(() => {
-    return storage.get('patients', INITIAL_PATIENTS);
+    return storage.get('patients', []);
   });
 
-  // 3. TEST CATALOG
+  // 3. TEST CATALOG (Standard clinical test profiles intact)
   const [tests, setTests] = useState(() => {
     return storage.get('tests', INITIAL_TESTS);
   });
 
-  // 4. SAMPLES
+  // 4. SAMPLES (Clean - 0 demo records)
   const [samples, setSamples] = useState(() => {
-    return storage.get('samples', [
-      {
-        id: 'smp-1',
-        sampleId: 'SMP-2026-0001',
-        patientId: 'pat-1',
-        patientName: 'Mohammad Irfan Ansari',
-        barcode: 'ARPHA88421001',
-        sampleType: 'EDTA Whole Blood',
-        vialColor: 'Lavender',
-        testNames: ['Complete Blood Count (CBC with ESR)'],
-        collectedAt: '2026-11-08T09:30:00Z',
-        collectorName: 'Rahul Kumar (DMLT)',
-        status: 'completed', // collected | processing | completed | rejected
-        rejectionReason: null
-      },
-      {
-        id: 'smp-2',
-        sampleId: 'SMP-2026-0002',
-        patientId: 'pat-2',
-        patientName: 'Sunita Kumari',
-        barcode: 'ARPHA88421002',
-        sampleType: 'Plain Serum',
-        vialColor: 'Red',
-        testNames: ['Liver Function Test (LFT Profile)', 'Thyroid Profile'],
-        collectedAt: '2026-11-08T10:45:00Z',
-        collectorName: 'Rahul Kumar (DMLT)',
-        status: 'processing',
-        rejectionReason: null
-      }
-    ]);
+    return storage.get('samples', []);
   });
 
-  // 5. INVOICES
+  // 5. INVOICES (Clean - 0 demo records)
   const [invoices, setInvoices] = useState(() => {
-    return storage.get('invoices', [
-      {
-        id: 'inv-1',
-        invoiceNumber: 'INV-2026-0001',
-        patientId: 'pat-1',
-        patientName: 'Mohammad Irfan Ansari',
-        patientPhone: '9934125870',
-        testIds: ['test-cbc'],
-        testNames: ['Complete Blood Count (CBC with ESR)'],
-        subtotal: 350,
-        discount: 0,
-        tax: 0,
-        total: 350,
-        paid: 350,
-        due: 0,
-        paymentStatus: 'paid', // paid | partial | unpaid
-        paymentMethod: 'UPI / QR',
-        createdAt: '2026-11-08T09:20:00Z'
-      },
-      {
-        id: 'inv-2',
-        invoiceNumber: 'INV-2026-0002',
-        patientId: 'pat-2',
-        patientName: 'Sunita Kumari',
-        patientPhone: '9431187654',
-        testIds: ['test-lft', 'test-thyroid'],
-        testNames: ['Liver Function Test (LFT Profile)', 'Thyroid Profile'],
-        subtotal: 1100,
-        discount: 100,
-        tax: 0,
-        total: 1000,
-        paid: 500,
-        due: 500,
-        paymentStatus: 'partial',
-        paymentMethod: 'Cash',
-        createdAt: '2026-11-08T10:35:00Z'
-      }
-    ]);
+    return storage.get('invoices', []);
   });
 
-  // 6. LAB REPORTS
+  // 6. LAB REPORTS (Clean - 0 demo records)
   const [reports, setReports] = useState(() => {
-    return storage.get('reports', [
-      {
-        id: 'rep-1',
-        reportNumber: 'REP-2026-0001',
-        patientId: 'pat-1',
-        patientName: 'Mohammad Irfan Ansari',
-        patientAge: 38,
-        patientGender: 'Male',
-        patientPhone: '9934125870',
-        referringDoctor: 'Dr. A. K. Verma (MD Medicine)',
-        testId: 'test-cbc',
-        testName: 'Complete Blood Count (CBC with ESR)',
-        sampleId: 'smp-1',
-        sampleType: 'EDTA Whole Blood',
-        results: [
-          { name: 'Hemoglobin (Hb)', value: 14.2, unit: 'g/dL', refRange: '13.0 - 17.0', flag: 'NORMAL' },
-          { name: 'Total Leucocyte Count (TLC / WBC)', value: 7200, unit: '/cumm', refRange: '4,000 - 11,000', flag: 'NORMAL' },
-          { name: 'RBC Count', value: 4.8, unit: 'mil/cumm', refRange: '4.5 - 5.9', flag: 'NORMAL' },
-          { name: 'Packed Cell Volume (PCV)', value: 42.5, unit: '%', refRange: '40.0 - 50.0', flag: 'NORMAL' },
-          { name: 'Platelet Count', value: 2.8, unit: 'lakhs/cumm', refRange: '1.5 - 4.5', flag: 'NORMAL' },
-          { name: 'Neutrophils', value: 62, unit: '%', refRange: '40 - 75', flag: 'NORMAL' },
-          { name: 'Lymphocytes', value: 28, unit: '%', refRange: '20 - 45', flag: 'NORMAL' },
-          { name: 'Eosinophils', value: 4, unit: '%', refRange: '1 - 6', flag: 'NORMAL' },
-          { name: 'Monocytes', value: 5, unit: '%', refRange: '2 - 8', flag: 'NORMAL' },
-          { name: 'Basophils', value: 1, unit: '%', refRange: '0 - 1', flag: 'NORMAL' },
-          { name: 'ESR (Westergren)', value: 8, unit: 'mm/1st hr', refRange: '0 - 15', flag: 'NORMAL' }
-        ],
-        clinicalImpression: 'Normocytic Normochromic blood picture. Platelet count and differential count within normal physiological limits.',
-        status: 'approved', // draft | under_review | approved
-        isAbnormal: false,
-        qrToken: 'ARPHA-REP-99281-VERIFIED',
-        technicianName: 'Rahul Kumar (DMLT)',
-        technicianEnteredAt: '2026-11-08T11:30:00Z',
-        pathologistName: 'Dr. Arpha Tabassum (MBBS, MD Pathology)',
-        pathologistApprovedAt: '2026-11-08T12:15:00Z',
-        createdAt: '2026-11-08T09:30:00Z'
-      }
-    ]);
+    return storage.get('reports', []);
   });
 
   // 7. INVENTORY
@@ -161,9 +71,9 @@ export function LabProvider({ children }) {
     return storage.get('inventory', INITIAL_INVENTORY);
   });
 
-  // 8. EXPENSES
+  // 8. EXPENSES (Clean - 0 demo records)
   const [expenses, setExpenses] = useState(() => {
-    return storage.get('expenses', INITIAL_EXPENSES);
+    return storage.get('expenses', []);
   });
 
   // 9. STAFF
@@ -174,8 +84,7 @@ export function LabProvider({ children }) {
   // 10. AUDIT LOGS
   const [auditLogs, setAuditLogs] = useState(() => {
     return storage.get('audit_logs', [
-      { id: 'log-1', action: 'SYSTEM_STARTUP', details: 'Arpha Diagnosis Management System initialized with NABL parameters.', user: 'MD NEJAM ANSARI', timestamp: '2026-11-08T09:00:00Z' },
-      { id: 'log-2', action: 'REPORT_APPROVED', details: 'CBC Report (REP-2026-0001) approved and digitally signed.', user: 'Dr. Arpha Tabassum', timestamp: '2026-11-08T12:15:00Z' }
+      { id: 'log-1', action: 'DATABASE_INITIALIZED', details: 'All demo records cleared. Lab is ready for fresh real patient intake.', user: 'MD NEJAM ANSARI', timestamp: new Date().toISOString() }
     ]);
   });
 
@@ -501,6 +410,29 @@ export function LabProvider({ children }) {
     return { patient: newPatient, invoice: createdInvoice, tests: selectedTestsList };
   };
 
+  // COMPLETE DATABASE WIPE / RESET
+  const resetAllData = () => {
+    setPatients([]);
+    setSamples([]);
+    setInvoices([]);
+    setReports([]);
+    setExpenses([]);
+    const resetLog = {
+      id: `log-${Date.now()}`,
+      action: 'DATABASE_RESET',
+      details: 'All patient records, bills, samples, and reports cleared by Admin.',
+      user: 'MD NEJAM ANSARI',
+      timestamp: new Date().toISOString()
+    };
+    setAuditLogs([resetLog]);
+    storage.set('patients', []);
+    storage.set('samples', []);
+    storage.set('invoices', []);
+    storage.set('reports', []);
+    storage.set('expenses', []);
+    storage.set('audit_logs', [resetLog]);
+  };
+
   return (
     <LabContext.Provider value={{
       settings,
@@ -510,6 +442,7 @@ export function LabProvider({ children }) {
       updatePatient,
       deletePatient,
       registerPatientWithBillingAndTests,
+      resetAllData,
       tests,
       addTest,
       updateTest,

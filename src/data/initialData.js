@@ -281,53 +281,7 @@ export const INITIAL_STAFF = [
   }
 ];
 
-export const INITIAL_PATIENTS = [
-  {
-    id: "pat-1",
-    patientId: "ARPHA-2026-0001",
-    name: "Mohammad Irfan Ansari",
-    age: 38,
-    gender: "Male",
-    phone: "9934125870",
-    email: "irfan.ansari@gmail.com",
-    address: "Bariatu Road, Near Medical College",
-    bloodGroup: "B+",
-    referringDoctor: "Dr. A. K. Verma (MD Medicine)",
-    registeredAt: "2026-11-08T09:15:00Z",
-    totalVisits: 3,
-    status: "active"
-  },
-  {
-    id: "pat-2",
-    patientId: "ARPHA-2026-0002",
-    name: "Sunita Kumari",
-    age: 45,
-    gender: "Female",
-    phone: "9431187654",
-    email: "sunita.k@yahoo.com",
-    address: "Kankarbagh Colony, Sector 4",
-    bloodGroup: "O+",
-    referringDoctor: "Dr. Ritu Sinha (Gynecologist)",
-    registeredAt: "2026-11-08T10:30:00Z",
-    totalVisits: 1,
-    status: "active"
-  },
-  {
-    id: "pat-3",
-    patientId: "ARPHA-2026-0003",
-    name: "Sheikh Mohammad Dawood",
-    age: 58,
-    gender: "Male",
-    phone: "8928266140",
-    email: "dawood786@gmail.com",
-    address: "Phulwari Sharif, Station Road",
-    bloodGroup: "A+",
-    referringDoctor: "Self / Walk-in",
-    registeredAt: "2026-11-08T11:00:00Z",
-    totalVisits: 2,
-    status: "active"
-  }
-];
+export const INITIAL_PATIENTS = [];
 
 export const INITIAL_INVENTORY = [
   { id: "inv-1", name: "CBC Reagent Pack (Sysmex 3-Part)", category: "Reagents", lotNo: "LOT-9921B", expiryDate: "2027-04-30", inStock: 8, minAlert: 3, unit: "Kits" },
@@ -338,9 +292,4 @@ export const INITIAL_INVENTORY = [
   { id: "inv-6", name: "Urine 10-Parameter Test Strips", category: "Test Strips", lotNo: "URN-10P", expiryDate: "2027-06-30", inStock: 180, minAlert: 50, unit: "Strips" }
 ];
 
-export const INITIAL_EXPENSES = [
-  { id: "exp-1", title: "Diagnostic Reagents Purchase (Erba Diagnostics)", category: "Reagents & Kits", amount: 14500, date: "2026-11-05", paidTo: "Erba Diagnostics Pvt Ltd", mode: "UPI" },
-  { id: "exp-2", title: "Cell Counter Preventive Maintenance & Calibration", category: "Equipment Maintenance", amount: 3500, date: "2026-11-04", paidTo: "Meditech Bio Systems", mode: "Cash" },
-  { id: "exp-3", title: "Monthly Laboratory Electricity Bill", category: "Rent & Utilities", amount: 4800, date: "2026-11-02", paidTo: "Electricity Board", mode: "Net Banking" },
-  { id: "exp-4", title: "Biomedical Waste Disposal Service", category: "Miscellaneous", amount: 1800, date: "2026-11-01", paidTo: "CleanBio Eco Solutions", mode: "UPI" }
-];
+export const INITIAL_EXPENSES = [];
