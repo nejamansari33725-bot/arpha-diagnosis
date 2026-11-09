@@ -383,6 +383,124 @@ export function LabProvider({ children }) {
     logAudit('SETTINGS_UPDATED', `Laboratory profile settings updated.`);
   };
 
+  // ALL-IN-ONE REGISTRATION (PATIENT + DOCTOR + SELECTED TESTS + INSTANT BILLING & SAMPLES)
+  const registerPatientWithBillingAndTests = ({ patientData, selectedTestIds = [], billingData = {} }) => {
+    // 1. Add Patient
+    const nextNum = patients.length + 1;
+    const patientId = `ARPHA-${new Date().getFullYear()}-${String(nextNum).padStart(4, '0')}`;
+    const newPatient = {
+      id: `pat-${Date.now()}`,
+      patientId,
+      ...patientData,
+      totalVisits: 1,
+      status: 'active',
+      registeredAt: new Date().toISOString()
+    };
+    setPatients(prev => [newPatient, ...prev]);
+    logAudit('PATIENT_REGISTERED', `New patient registered: ${newPatient.name} (ID: ${patientId})`);
+
+    let createdInvoice = null;
+    const selectedTestsList = tests.filter(t => selectedTestIds.includes(t.id));
+
+    if (selectedTestsList.length > 0) {
+      // 2. Create Invoice
+      const subtotal = selectedTestsList.reduce((acc, t) => acc + Number(t.price || 0), 0);
+      const discount = Number(billingData.discount || 0);
+      const total = Math.max(0, subtotal - discount);
+      const paid = billingData.paid !== undefined ? Number(billingData.paid) : total;
+      const due = Math.max(0, total - paid);
+      const paymentStatus = due === 0 ? 'paid' : (paid > 0 ? 'partial' : 'unpaid');
+
+      const nextInvNum = invoices.length + 1;
+      const invoiceNumber = `INV-${new Date().getFullYear()}-${String(nextInvNum).padStart(4, '0')}`;
+      createdInvoice = {
+        id: `inv-${Date.now()}`,
+        invoiceNumber,
+        patientId: newPatient.id,
+        patientName: newPatient.name,
+        patientPhone: newPatient.phone,
+        testIds: selectedTestIds,
+        testNames: selectedTestsList.map(t => t.name),
+        subtotal,
+        discount,
+        tax: 0,
+        total,
+        paid,
+        due,
+        paymentStatus,
+        paymentMethod: billingData.paymentMethod || 'Cash',
+        createdAt: new Date().toISOString()
+      };
+      setInvoices(prev => [createdInvoice, ...prev]);
+      logAudit('INVOICE_GENERATED', `Generated invoice ${invoiceNumber} for ₹${total}`);
+
+      // 3. Create Sample Intake Record
+      const nextSmpNum = samples.length + 1;
+      const sampleId = `SMP-${new Date().getFullYear()}-${String(nextSmpNum).padStart(4, '0')}`;
+      const barcode = `ARPHA${Date.now().toString().slice(-8)}`;
+      const newSample = {
+        id: `smp-${Date.now()}`,
+        sampleId,
+        barcode,
+        patientId: newPatient.id,
+        patientName: newPatient.name,
+        sampleType: selectedTestsList[0]?.sampleType || 'Whole Blood / Serum',
+        vialColor: selectedTestsList[0]?.vialColor || 'Lavender',
+        testNames: selectedTestsList.map(t => t.name),
+        status: 'collected',
+        collectedAt: new Date().toISOString(),
+        collectorName: 'Phlebotomy Desk'
+      };
+      setSamples(prev => [newSample, ...prev]);
+      logAudit('SAMPLE_COLLECTED', `Sample collected: ${sampleId} for ${newPatient.name}`);
+
+      // 4. Create Lab Report Worklist Items for each selected test
+      const newReportsList = selectedTestsList.map((testItem, tIdx) => {
+        const nextRepNum = reports.length + tIdx + 1;
+        const reportNumber = `REP-${new Date().getFullYear()}-${String(nextRepNum).padStart(4, '0')}`;
+        const qrToken = `ARPHA-REP-${Date.now() + tIdx}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+        
+        const initialResults = (testItem.parameters || []).map(param => {
+          const isFemale = newPatient.gender === 'Female';
+          const refMin = isFemale ? (param.minFemale ?? param.minMale) : param.minMale;
+          const refMax = isFemale ? (param.maxFemale ?? param.maxMale) : param.maxMale;
+          return {
+            name: param.name,
+            value: param.defaultVal || '',
+            unit: param.unit,
+            refRange: refMin != null && refMax != null ? `${refMin} - ${refMax}` : 'Reference Range',
+            min: refMin,
+            max: refMax,
+            flag: 'NORMAL'
+          };
+        });
+
+        return {
+          id: `rep-${Date.now() + tIdx}`,
+          reportNumber,
+          qrToken,
+          patientId: newPatient.id,
+          patientName: newPatient.name,
+          patientAge: newPatient.age,
+          patientGender: newPatient.gender,
+          patientPhone: newPatient.phone,
+          referringDoctor: newPatient.referringDoctor || 'Self / Walk-in',
+          testId: testItem.id,
+          testName: testItem.name,
+          sampleType: testItem.sampleType,
+          results: initialResults,
+          clinicalImpression: 'Specimen examined in automated clinical analyzer. Correlate clinically.',
+          status: 'draft',
+          createdAt: new Date().toISOString()
+        };
+      });
+
+      setReports(prev => [...newReportsList, ...prev]);
+    }
+
+    return { patient: newPatient, invoice: createdInvoice, tests: selectedTestsList };
+  };
+
   return (
     <LabContext.Provider value={{
       settings,
@@ -391,6 +509,7 @@ export function LabProvider({ children }) {
       addPatient,
       updatePatient,
       deletePatient,
+      registerPatientWithBillingAndTests,
       tests,
       addTest,
       updateTest,

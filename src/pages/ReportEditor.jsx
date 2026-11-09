@@ -265,19 +265,12 @@ export default function ReportEditor() {
       {/* Action Footer Bar */}
       <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         
-        {/* Left: Role explanation badge */}
+        {/* Left: Admin Status badge */}
         <div className="flex items-center gap-2 text-xs">
-          {canApproveReports ? (
-            <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              Authorized Pathologist (MD) Sign-off Authority Active
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 text-amber-800 font-medium bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
-              <ShieldAlert className="w-4 h-4 text-amber-600" />
-              Technician Mode: Can draft & submit. Final approval reserved for Pathologist.
-            </span>
-          )}
+          <span className="inline-flex items-center gap-1.5 text-emerald-700 font-bold bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            Admin Medical Sign-off Authority Active
+          </span>
         </div>
 
         {/* Right: Actions */}
@@ -293,34 +286,12 @@ export default function ReportEditor() {
 
           <button
             type="button"
-            onClick={handleSubmitForReview}
-            className="px-4 py-2.5 text-xs font-semibold text-amber-900 bg-amber-100 hover:bg-amber-200 rounded-xl transition-colors flex items-center gap-1.5"
+            onClick={handlePathologistApproval}
+            className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all flex items-center gap-2"
           >
-            <FileCheck2 className="w-4 h-4" />
-            <span>Submit to Pathologist</span>
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Verify & Officially Approve</span>
           </button>
-
-          {/* STRICT PATHOLOGIST APPROVAL BUTTON */}
-          {canApproveReports ? (
-            <button
-              type="button"
-              onClick={handlePathologistApproval}
-              className="px-5 py-2.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-md transition-all flex items-center gap-2"
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Verify & Officially Approve</span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled
-              className="px-5 py-2.5 text-xs font-semibold text-slate-400 bg-slate-100 rounded-xl cursor-not-allowed flex items-center gap-2"
-              title="Only Authorized Pathologist (MD) or Super Admin can sign off"
-            >
-              <ShieldAlert className="w-4 h-4" />
-              <span>Approve (MD Only)</span>
-            </button>
-          )}
         </div>
 
       </div>

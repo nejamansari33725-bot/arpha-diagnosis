@@ -108,15 +108,15 @@ export default function Reports() {
         )}
       </div>
 
-      {/* Pathologist Security Notice */}
-      <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-blue-50 border border-emerald-200/80 rounded-2xl p-4 flex items-start gap-3.5">
+      {/* Admin Quick Notice */}
+      <div className="bg-gradient-to-r from-brand-50 via-teal-50 to-emerald-50 border border-brand-200/80 rounded-2xl p-4 flex items-start gap-3.5">
         <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
         <div className="text-xs space-y-0.5">
           <p className="font-bold text-slate-900">
-            NABL & Medical Council Compliance Enforced:
+            Admin Diagnostic Operations & Approvals:
           </p>
           <p className="text-slate-600 leading-relaxed">
-            Technicians can only enter analyzer values and save drafts. Only an Authorized Pathologist (MD) or Super Admin can sign off and approve final diagnostic reports for release.
+            Full authority to record observed values, inspect automatic biological reference alerts (High/Low), and digitally verify & approve diagnostic reports for patient release.
           </p>
         </div>
       </div>

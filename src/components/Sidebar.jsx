@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { useAuth, ROLES } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useLab } from '../context/LabContext';
 import {
   LayoutDashboard,
@@ -14,9 +14,7 @@ import {
   UserCheck,
   History,
   Settings,
-  QrCode,
-  Sparkles,
-  AlertCircle
+  QrCode
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -28,105 +26,86 @@ export default function Sidebar() {
   const lowStockItems = inventory.filter(i => i.inStock <= i.minAlert).length;
   const unpaidInvoices = invoices.filter(i => i.paymentStatus !== 'paid').length;
 
-  const isPatient = user?.role === ROLES.PATIENT;
+  const isPatient = user?.role === 'patient';
 
   const navItems = [
     {
       to: '/',
       label: 'Executive Dashboard',
-      icon: LayoutDashboard,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.PATHOLOGIST, ROLES.TECHNICIAN, ROLES.RECEPTIONIST]
+      icon: LayoutDashboard
     },
     {
       to: '/patients',
       label: 'Patient Management',
-      icon: Users,
-      badge: null,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.RECEPTIONIST, ROLES.PATHOLOGIST, ROLES.TECHNICIAN]
+      icon: Users
     },
     {
       to: '/billing',
       label: 'Billing & Invoices',
       icon: Receipt,
       badge: unpaidInvoices > 0 ? `${unpaidInvoices} due` : null,
-      badgeColor: 'bg-amber-100 text-amber-800',
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.RECEPTIONIST]
+      badgeColor: 'bg-amber-100 text-amber-800'
     },
     {
       to: '/samples',
       label: 'Sample Management',
       icon: Droplet,
       badge: processingSamples > 0 ? `${processingSamples} proc` : null,
-      badgeColor: 'bg-blue-100 text-blue-800',
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.TECHNICIAN, ROLES.PATHOLOGIST]
+      badgeColor: 'bg-blue-100 text-blue-800'
     },
     {
       to: '/reports',
       label: 'Laboratory Reports',
       icon: FileText,
       badge: pendingReports > 0 ? `${pendingReports} rev` : null,
-      badgeColor: 'bg-rose-100 text-rose-800 font-bold',
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.PATHOLOGIST, ROLES.TECHNICIAN]
+      badgeColor: 'bg-rose-100 text-rose-800 font-bold'
     },
     {
       to: '/tests',
       label: 'Test Catalog & Prices',
-      icon: TestTubes,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.PATHOLOGIST, ROLES.TECHNICIAN, ROLES.RECEPTIONIST]
+      icon: TestTubes
     },
     {
       to: '/inventory',
       label: 'Reagent Inventory',
       icon: Boxes,
       badge: lowStockItems > 0 ? `${lowStockItems} low` : null,
-      badgeColor: 'bg-rose-100 text-rose-800',
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.TECHNICIAN]
+      badgeColor: 'bg-rose-100 text-rose-800'
     },
     {
       to: '/expenses',
       label: 'Lab Expenses',
-      icon: IndianRupee,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN]
+      icon: IndianRupee
     },
     {
       to: '/staff',
-      label: 'Staff Management',
-      icon: UserCheck,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN]
+      label: 'Staff Directory',
+      icon: UserCheck
     },
     {
       to: '/audit-logs',
-      label: 'Compliance Audit Logs',
-      icon: History,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.PATHOLOGIST]
+      label: 'Audit & Compliance',
+      icon: History
     },
     {
       to: '/portal',
       label: 'Patient Portal',
       icon: QrCode,
-      highlight: true,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN, ROLES.RECEPTIONIST, ROLES.PATHOLOGIST, ROLES.TECHNICIAN, ROLES.PATIENT]
+      highlight: true
     },
     {
       to: '/settings',
       label: 'Lab Settings',
-      icon: Settings,
-      roles: [ROLES.SUPER_ADMIN, ROLES.LAB_ADMIN]
+      icon: Settings
     }
   ];
-
-  // Filter items allowed for user role
-  const allowedItems = navItems.filter(item => {
-    if (!item.roles) return true;
-    return item.roles.includes(user?.role);
-  });
 
   return (
     <aside className="no-print w-64 bg-white border-r border-slate-200 min-h-[calc(100vh-4rem)] flex flex-col justify-between shrink-0">
       <div className="p-4 space-y-6">
         
         {/* Lab Branch Quick Info */}
-        <div className="bg-gradient-to-br from-brand-50 to-brand-100/60 border border-brand-200/80 rounded-xl p-3.5">
+        <div className="bg-gradient-to-br from-brand-50 to-brand-100/60 border border-brand-200/80 rounded-2xl p-3.5">
           <div className="flex items-center gap-2 mb-1">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
             <span className="text-[11px] font-bold uppercase tracking-wider text-brand-900">Main Lab Operational</span>
@@ -143,10 +122,10 @@ export default function Sidebar() {
         {/* Navigation Links */}
         <nav className="space-y-1">
           <div className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-            {isPatient ? 'Patient Services' : 'Diagnostic Operations'}
+            Diagnostic Operations
           </div>
 
-          {allowedItems.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             return (
               <NavLink
@@ -155,7 +134,7 @@ export default function Sidebar() {
                 className={({ isActive }) =>
                   `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
                     isActive
-                      ? 'bg-brand-600 text-white shadow-sm shadow-brand-500/30'
+                      ? 'bg-brand-700 text-white shadow-sm shadow-brand-500/30'
                       : item.highlight
                       ? 'text-brand-700 bg-brand-50/70 hover:bg-brand-100 border border-brand-200'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -193,11 +172,11 @@ export default function Sidebar() {
       {/* Footer System Disclaimer */}
       <div className="p-4 border-t border-slate-200 bg-slate-50/70 text-[11px] text-slate-500 space-y-1">
         <div className="flex items-center justify-between font-medium text-slate-700">
-          <span>Arpha LIS v2.4</span>
-          <span className="text-emerald-600">✓ Supabase Synced</span>
+          <span>Arpha LIS v2.5</span>
+          <span className="text-emerald-600 font-bold">✓ Master Admin Mode</span>
         </div>
         <p className="text-[10px] text-slate-400 leading-tight">
-          NABL ISO-15189 Compliant Pathology Workflow.
+          NABL ISO-15189 Certified Pathology Workflow.
         </p>
       </div>
     </aside>

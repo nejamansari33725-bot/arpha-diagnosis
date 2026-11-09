@@ -31,7 +31,7 @@ export default function Patients() {
   // Edit Patient State
   const [editingPatient, setEditingPatient] = useState(null);
 
-  const canEditOrDelete = user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.LAB_ADMIN;
+  const canEditOrDelete = true;
 
   const filteredPatients = patients.filter(p => {
     const matchesSearch =

@@ -1,40 +1,33 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, ROLES } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 import { useLab } from '../context/LabContext';
 import {
   Activity,
   ShieldCheck,
   Lock,
   Mail,
-  UserCheck,
   ArrowRight,
-  Stethoscope,
-  Microscope,
-  Receipt,
-  User
+  User,
+  Sparkles
 } from 'lucide-react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { loginStaff } = useAuth();
+  const { loginAdmin } = useAuth();
   const { settings } = useLab();
 
   const [email, setEmail] = useState('admin@arphadiagnosis.com');
   const [password, setPassword] = useState('••••••••');
 
-  const handleRoleSelect = (role) => {
-    loginStaff(role);
-    if (role === ROLES.PATIENT) {
-      navigate('/portal');
-    } else {
-      navigate('/');
-    }
+  const handleAdminEnter = () => {
+    loginAdmin();
+    navigate('/');
   };
 
   const handleCustomLogin = (e) => {
     e.preventDefault();
-    loginStaff(ROLES.SUPER_ADMIN);
+    loginAdmin();
     navigate('/');
   };
 
@@ -56,110 +49,43 @@ export default function Login() {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-xl relative z-10 px-4">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-lg relative z-10 px-4">
         <div className="bg-white py-8 px-6 sm:px-10 shadow-2xl rounded-3xl border border-slate-200 space-y-6">
           
-          {/* 1-Click Role Login Selector (Instant access for testing) */}
+          {/* Unified Single Admin Card */}
           <div className="space-y-3">
             <div className="text-center">
               <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                Quick Role-Based Direct Access
+                Master Administrator Authentication
               </span>
-              <p className="text-xs text-slate-600 mt-0.5">Click any role to test its specific access and permissions:</p>
+              <p className="text-xs text-slate-600 mt-0.5">Click below to enter the full laboratory control dashboard:</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              
-              {/* Super Admin */}
-              <button
-                type="button"
-                onClick={() => handleRoleSelect(ROLES.SUPER_ADMIN)}
-                className="p-3 text-left rounded-xl border border-purple-200 bg-purple-50/50 hover:bg-purple-100/80 transition-all flex items-center gap-3 group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-purple-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
+            <button
+              type="button"
+              onClick={handleAdminEnter}
+              className="w-full p-4 text-left rounded-2xl border-2 border-brand-500 bg-brand-50 hover:bg-brand-100 transition-all flex items-center justify-between group shadow-sm"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-11 h-11 rounded-xl bg-brand-700 text-white flex items-center justify-center text-lg font-bold shadow-md">
                   👨‍💼
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-purple-950 flex items-center gap-1">
-                    <span>Super Admin</span>
-                    <span className="text-[9px] bg-purple-200 text-purple-800 px-1 py-0.2 rounded">Master</span>
+                  <div className="text-sm font-black text-brand-950 flex items-center gap-2">
+                    <span>MD NEJAM ANSARI</span>
+                    <span className="text-[10px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold">
+                      Master Admin
+                    </span>
                   </div>
-                  <div className="text-[11px] text-purple-800">MD NEJAM ANSARI</div>
-                </div>
-              </button>
-
-              {/* Pathologist */}
-              <button
-                type="button"
-                onClick={() => handleRoleSelect(ROLES.PATHOLOGIST)}
-                className="p-3 text-left rounded-xl border border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/80 transition-all flex items-center gap-3 group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
-                  👩‍⚕️
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-emerald-950 flex items-center gap-1">
-                    <span>Pathologist (MD)</span>
-                    <span className="text-[9px] bg-emerald-200 text-emerald-800 px-1 py-0.2 rounded">Approver</span>
+                  <div className="text-xs text-brand-700 font-medium mt-0.5">
+                    Full Master Access (Patients, Billing, Tests, Reports & Approval)
                   </div>
-                  <div className="text-[11px] text-emerald-800">Dr. Arpha Tabassum</div>
-                </div>
-              </button>
-
-              {/* Lab Technician */}
-              <button
-                type="button"
-                onClick={() => handleRoleSelect(ROLES.TECHNICIAN)}
-                className="p-3 text-left rounded-xl border border-amber-200 bg-amber-50/50 hover:bg-amber-100/80 transition-all flex items-center gap-3 group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-amber-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
-                  🔬
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-amber-950 flex items-center gap-1">
-                    <span>Lab Tech (DMLT)</span>
-                    <span className="text-[9px] bg-amber-200 text-amber-800 px-1 py-0.2 rounded">Drafts</span>
-                  </div>
-                  <div className="text-[11px] text-amber-800">Rahul Kumar</div>
-                </div>
-              </button>
-
-              {/* Receptionist */}
-              <button
-                type="button"
-                onClick={() => handleRoleSelect(ROLES.RECEPTIONIST)}
-                className="p-3 text-left rounded-xl border border-blue-200 bg-blue-50/50 hover:bg-blue-100/80 transition-all flex items-center gap-3 group"
-              >
-                <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center text-sm font-bold shrink-0">
-                  👩‍💼
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-blue-950 flex items-center gap-1">
-                    <span>Billing & Reception</span>
-                    <span className="text-[9px] bg-blue-200 text-blue-800 px-1 py-0.2 rounded">Frontdesk</span>
-                  </div>
-                  <div className="text-[11px] text-blue-800">Priya Sharma</div>
-                </div>
-              </button>
-
-            </div>
-
-            {/* Patient Portal Option */}
-            <button
-              type="button"
-              onClick={() => handleRoleSelect(ROLES.PATIENT)}
-              className="w-full p-3 rounded-xl border border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100 transition-all flex items-center justify-between text-indigo-900"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">
-                  👤
-                </div>
-                <div className="text-left">
-                  <div className="text-xs font-bold">Patient Self-Service Portal</div>
-                  <div className="text-[11px] text-indigo-700">Lookup tests, download reports & verify QR codes</div>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-indigo-600" />
+
+              <div className="w-8 h-8 rounded-lg bg-brand-700 text-white flex items-center justify-center group-hover:translate-x-1 transition-transform shrink-0">
+                <ArrowRight className="w-4 h-4" />
+              </div>
             </button>
           </div>
 
@@ -169,7 +95,7 @@ export default function Login() {
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="px-3 bg-white text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                Or Custom Staff Credentials
+                Or Sign In With Password
               </span>
             </div>
           </div>
@@ -177,7 +103,7 @@ export default function Login() {
           {/* Standard Form */}
           <form onSubmit={handleCustomLogin} className="space-y-4 text-xs">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Staff Email ID</label>
+              <label className="block font-semibold text-slate-700 mb-1">Admin Email Address</label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
@@ -191,7 +117,7 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Access Password</label>
+              <label className="block font-semibold text-slate-700 mb-1">Security Password</label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
@@ -206,11 +132,23 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full py-2.5 px-4 bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-md transition-all text-xs"
+              className="w-full py-2.5 px-4 bg-slate-900 hover:bg-black text-white font-bold rounded-xl shadow-md transition-all text-xs"
             >
-              Authenticate & Enter Lab System
+              Sign In to Lab Console
             </button>
           </form>
+
+          {/* Patient Portal Link */}
+          <div className="pt-2 border-t border-slate-100 text-center">
+            <button
+              type="button"
+              onClick={() => navigate('/portal')}
+              className="text-xs font-semibold text-brand-700 hover:text-brand-900 hover:underline inline-flex items-center gap-1.5"
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Looking for your medical reports? Go to Patient Portal &rarr;</span>
+            </button>
+          </div>
 
         </div>
       </div>

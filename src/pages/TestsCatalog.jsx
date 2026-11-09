@@ -47,7 +47,7 @@ export default function TestsCatalog() {
     ]
   });
 
-  const canManageTests = user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.LAB_ADMIN;
+  const canManageTests = true;
 
   const departments = ['ALL', 'Hematology', 'Biochemistry', 'Immunology', 'Clinical Pathology'];
 

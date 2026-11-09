@@ -1,31 +1,37 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { INITIAL_STAFF } from '../data/initialData';
 import { storage } from '../services/supabase';
 
 const AuthContext = createContext();
 
 export const ROLES = {
   SUPER_ADMIN: 'super_admin',
-  LAB_ADMIN: 'lab_admin',
-  RECEPTIONIST: 'receptionist',
-  TECHNICIAN: 'technician',
-  PATHOLOGIST: 'pathologist',
+  LAB_ADMIN: 'super_admin',
+  RECEPTIONIST: 'super_admin',
+  TECHNICIAN: 'super_admin',
+  PATHOLOGIST: 'super_admin',
   PATIENT: 'patient'
 };
 
 export const ROLE_LABELS = {
-  super_admin: 'Super Admin (MD Nejam Ansari)',
-  lab_admin: 'Lab Administrator',
-  receptionist: 'Receptionist / Billing Desk',
-  technician: 'Laboratory Technician (DMLT)',
-  pathologist: 'Authorized Pathologist (MD)',
+  super_admin: 'Master Admin (MD NEJAM ANSARI)',
   patient: 'Patient Portal'
 };
 
+export const ADMIN_USER = {
+  id: 'admin-1',
+  name: 'MD NEJAM ANSARI',
+  role: 'super_admin',
+  title: 'Super Admin & Lab Director',
+  phone: '8434776690',
+  email: 'admin@arphadiagnosis.com',
+  avatar: '👨‍💼',
+  status: 'active'
+};
+
 export function AuthProvider({ children }) {
-  // Default to Super Admin for immediate testing
+  // Single Unified Admin
   const [user, setUser] = useState(() => {
-    return storage.get('auth_user', INITIAL_STAFF[0]);
+    return storage.get('auth_user', ADMIN_USER);
   });
 
   const [patientUser, setPatientUser] = useState(() => {
@@ -48,25 +54,10 @@ export function AuthProvider({ children }) {
     }
   }, [patientUser]);
 
-  const loginStaff = (roleOrId, customName = null) => {
-    const foundStaff = INITIAL_STAFF.find(s => s.role === roleOrId || s.id === roleOrId);
-    if (foundStaff) {
-      setUser(foundStaff);
-      setPatientUser(null);
-      return foundStaff;
-    }
-    // Generic fallback
-    const genericUser = {
-      id: `usr-${Date.now()}`,
-      name: customName || `Staff (${ROLE_LABELS[roleOrId] || roleOrId})`,
-      role: roleOrId,
-      phone: '8434776690',
-      status: 'active',
-      avatar: '👨‍⚕️'
-    };
-    setUser(genericUser);
+  const loginAdmin = () => {
+    setUser(ADMIN_USER);
     setPatientUser(null);
-    return genericUser;
+    return ADMIN_USER;
   };
 
   const loginPatient = (patient) => {
@@ -82,38 +73,34 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    setUser(null);
+    setUser(ADMIN_USER);
     setPatientUser(null);
-    storage.remove('auth_user');
     storage.remove('auth_patient');
   };
 
-  // Permission helpers
-  const canApproveReports = user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.PATHOLOGIST;
-  const canEnterResults = user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.TECHNICIAN || user?.role === ROLES.PATHOLOGIST;
-  const canManageBilling = user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.LAB_ADMIN || user?.role === ROLES.RECEPTIONIST;
-  const canRegisterPatients = user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.LAB_ADMIN || user?.role === ROLES.RECEPTIONIST;
-  const canManageTests = user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.LAB_ADMIN;
-  const canManageStaff = user?.role === ROLES.SUPER_ADMIN;
+  // The Single Admin has FULL ALL-ACCESS permissions across all modules
+  const isSuperAdmin = user?.role === 'super_admin' || !user?.role || user?.role !== 'patient';
+  const canApproveReports = isSuperAdmin;
+  const canEnterResults = isSuperAdmin;
+  const canManageBilling = isSuperAdmin;
+  const canRegisterPatients = isSuperAdmin;
+  const canManageTests = isSuperAdmin;
+  const canManageStaff = isSuperAdmin;
 
   return (
     <AuthContext.Provider value={{
-      user,
+      user: user || ADMIN_USER,
       patientUser,
-      loginStaff,
+      loginAdmin,
       loginPatient,
       logout,
+      isSuperAdmin,
       canApproveReports,
       canEnterResults,
       canManageBilling,
       canRegisterPatients,
       canManageTests,
-      canManageStaff,
-      isSuperAdmin: user?.role === ROLES.SUPER_ADMIN,
-      isPathologist: user?.role === ROLES.PATHOLOGIST,
-      isTechnician: user?.role === ROLES.TECHNICIAN,
-      isReceptionist: user?.role === ROLES.RECEPTIONIST,
-      isPatient: user?.role === ROLES.PATIENT
+      canManageStaff
     }}>
       {children}
     </AuthContext.Provider>
